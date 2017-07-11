@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="www.thymeleaf.org " xmlns:sec="www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>InstaClone</title>
+
+    <th:block th:replace="base :: head"></th:block>
+</head>
+<body>
+<th:block th:replace="base :: nav"></th:block>
+
+<div class="container">
+    <br /><br />
+    <h1>Your Profile</h1>
+    <br/>
+    <h2>Your Photos</h2>
+    <div th:each = "phot : ${myphotoList}" >
+        <div class="col-md-3" th:each="photo : ${myimages}">
+            <a th:href="'/img/' + ${photo.id}" >
+                <img th:utext="${photo.image}" />
+            </a>
+        </div>
+    </div><!-- /.container -->
+    <br/>
+    <h2>People You Follow</h2>
+    <div th:each = "person : ${followList}" >
+        <a th:text = "${person.firstName} + ' ' + ${person.lastName}" th:href="@{'/profile/' + ${person.id}}"></a>
+    </div>
+    <div th:if="${followcheck}">
+        <a th:text = "Follow This Person" th:href="@{'/follow/' + ${person.id}}"></a>
+    </div>
+    <div class="row">
+
+
+
+        <br/>
+    </div>
+</div>
+<th:block th:replace="base :: footlinks"></th:block>
+</body>
+</html>
