@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 
 import com.cloudinary.Singleton;
 import com.cloudinary.StoredFile;
+import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.demo.configs.CloudinaryConfig;
 import com.example.demo.models.Comment;
@@ -132,43 +133,111 @@ public class HomeController {
             model.addAttribute("message",
                     "You successfully uploaded '" + file.getOriginalFilename() + "'");
             String filename = uploadResult.get("public_id").toString() + "." + uploadResult.get("format").toString();
-            p.setImage("<img src='http://res.cloudinary.com/dmzhobs8c/image/upload/"+filename+"' width='300px'/>");
-            //System.out.printf("%s\n", cloudc.createUrl(filename,900,900, "fit"));
-            p.setCreatedAt(new Date());
-            p.setUserid(id);
-            photoRepo.save(p);
+
+            p.setImage(cloudc.createUrl(filename, 250, 250, "fit"));
+            //System.out.printf("%s\n", "<img src='http://res.cloudinary.com/dmzhobs8c/image/upload/"+filename+"' width='250px'/>");
+            // <img src='http://res.cloudinary.com/dmzhobs8c/image/upload/bo_2px_solid_black,c_fit,h_250,w_250/kolgnlmn0ywupoeg0glm.jpg'/>
+            model.addAttribute("images", p);
+            model.addAttribute("filename", filename);
+            model.addAttribute("pic", filename);
+            model.addAttribute("edits", "bo_2px_solid_black,c_fit,h_200,w_200");
+            // photoRepo.save(p);
         } catch (IOException e){
             e.printStackTrace();
             model.addAttribute("message", "Sorry I can't upload that!");
         }
+        return "confirmphoto";
+    }
+
+    @PostMapping("submitPic/{edits}/{pic}")
+    public String submitPic(Principal principal, Model model, @PathVariable("edits") String edits, @PathVariable("pic") String filename){
+        Long id = userService.findByUsername(principal.getName()).getId();
+        Photo photo = new Photo();
+        photo.setImage("<img src='http://res.cloudinary.com/dmzhobs8c/image/upload/" + edits + "/" + filename + ".jpg'/>");
+        photo.setUserid(id);
+        photo.setCreatedAt(new Date());
+        photoRepo.save(photo);
         model = setupProfile(id, model);
         model.addAttribute("followcheck", false);
         return "profile";
     }
 
+    @RequestMapping("/filter/red/{filename}")
+    public String filterRed(@ModelAttribute("images") Photo photo, Model model, @PathVariable("filename") String filename){
+        photo.setImage("<img src='http://res.cloudinary.com/dmzhobs8c/image/upload/e_colorize:50,co_rgb:ff0000,bo_2px_solid_black,c_fit,h_250,w_250/"+filename+".jpg'/>");
+        model.addAttribute("filename", filename);
+        model.addAttribute("images", photo);
+        model.addAttribute("pic", filename);
+        model.addAttribute("edits", "e_colorize:50,co_rgb:ff0000,bo_2px_solid_black,c_fit,h_200,w_200");
+        return "confirmphoto";
+    }
+
+    @RequestMapping("/filter/none/{filename}")
+    public String filterNone(@ModelAttribute("images") Photo photo, Model model, @PathVariable("filename") String filename){
+        photo.setImage("<img src='http://res.cloudinary.com/dmzhobs8c/image/upload/bo_2px_solid_black,c_fit,h_250,w_250/"+filename+".jpg'/>");
+        model.addAttribute("filename", filename);
+        model.addAttribute("images", photo);
+        model.addAttribute("pic", filename);
+        model.addAttribute("edits", "bo_2px_solid_black,c_fit,h_200,w_200");
+        return "confirmphoto";
+    }
+
+    @RequestMapping("/filter/hue/{filename}")
+    public String filterHue(@ModelAttribute("images") Photo photo, Model model, @PathVariable("filename") String filename){
+        photo.setImage("<img src='http://res.cloudinary.com/dmzhobs8c/image/upload/e_hue,bo_2px_solid_black,c_fit,h_250,w_250/"+filename+".jpg'/>");
+        model.addAttribute("filename", filename);
+        model.addAttribute("images", photo);
+        model.addAttribute("pic", filename);
+        model.addAttribute("edits", "e_hue,bo_2px_solid_black,c_fit,h_200,w_200");
+        return "confirmphoto";
+    }
+
+    @RequestMapping("/filter/sepia/{filename}")
+    public String filterSepia(@ModelAttribute("images") Photo photo, Model model, @PathVariable("filename") String filename){
+        photo.setImage("<img src='http://res.cloudinary.com/dmzhobs8c/image/upload/e_sepia,bo_2px_solid_black,c_fit,h_250,w_250/"+filename+".jpg'/>");
+        model.addAttribute("filename", filename);
+        model.addAttribute("images", photo);
+        model.addAttribute("pic", filename);
+        model.addAttribute("edits", "e_sepia,bo_2px_solid_black,c_fit,h_200,w_200");
+        return "confirmphoto";
+    }
+
     @RequestMapping("/img/{id}")
     public String imgDisplay(Model model, @PathVariable("id") Long id){
-        Photo p = photoRepo.findById(id);
-        model.addAttribute("images", p);
-        List<Comment> clist = commentRepo.findAllByPhotoid(id);
-        model.addAttribute("comment", clist);
-        model.addAttribute("newcomment", new Comment());
+        model = setupPicturePage(model, id);
         return "gallery";
     }
 
     @PostMapping("/newComment/{id}")
-    public String addComment(@PathVariable("id") Long id, Model model){
+    public String addComment(@PathVariable("id") Long id, Model model, @ModelAttribute Comment comment, Principal principal){
+        comment.setPhotoid(id);
+        comment.setUsername(userService.findByUsername(principal.getName()).getUsername());
+        commentRepo.save(comment);
+        model = setupPicturePage(model, id);
+        return "gallery";
+    }
+
+    @RequestMapping("incrementCounter/{id}")
+    public String incrementCounter(@PathVariable("id") Long id, Model model){
+        Photo p = photoRepo.findById(id);
+        p.setLikecounter(p.getLikecounter() + 1);
+        photoRepo.save(p);
+        model = setupPicturePage(model, id);
+        return "gallery";
+    }
+
+    private Model setupPicturePage(Model model, Long id){
         Photo p = photoRepo.findById(id);
         model.addAttribute("images", p);
         List<Comment> clist = commentRepo.findAllByPhotoid(id);
-        model.addAttribute("comment", clist);
+        model.addAttribute("comments", clist);
         model.addAttribute("newcomment", new Comment());
-        return "gallery";
+        return model;
     }
 
     private Model setupProfile(Long id, Model model){
         List<Photo> pList = photoRepo.findAllByUserid(id);
-        model.addAttribute("myphotoList", pList);
+        model.addAttribute("myimages", pList);
         List<Follower> flist = followerRepo.findAllByUserid(id);
         List<User> uList = new ArrayList<User>();
         for(Follower f : flist) {

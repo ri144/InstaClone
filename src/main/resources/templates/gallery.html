@@ -47,17 +47,19 @@
     <h1>Image Display</h1>
     <div class="row">
     <div th:object="${images}">
-            <img th:utext="${images.image}" style="position:absolute; width: 300px;" />
+            <img th:utext="*{image}" style="position:absolute; width: 300px;" />
             <a th:text="'Likes: ' + *{likecounter}" th:href="'/incrementCounter/'+*{id}"></a>
             <br/>
-            <div th:each="c : ${comment}">
-                <p th:text="${c.username} + ' says :"/>
-                <p th:text="${c.comment}"/>
+            <div th:each="c : ${comments}">
+                <p th:text="${c.username} + ' says :'"/>
+                <p th:text="${c.text}"/>
             </div>
     </div>
-    <form method="POST" th:action="'/newComment/'+${images.id}" th:object="${newcomment}">
-            <input type="text" th:field="*{comment}" />
-            <input type="submit" value="Submit Comment" />
+    <form method="post" th:action="@{'/newComment/'+${images.id}}" th:object="${newcomment}">
+        <div class="form-group">
+            <input type="text" class="form-control" th:field="*{text}" />
+        </div>
+        <button type="submit" class="btn btn-default">Submit Comment</button>
     </form>
 
         <br/><br/> <br/><br/>

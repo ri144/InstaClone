@@ -18,7 +18,7 @@ public class Comment {
 
     private String username; //user who posted the comment
 
-    private String comment;
+    private String text;
 
     public Long getId() {
         return id;
@@ -36,12 +36,12 @@ public class Comment {
         this.photoid = photoid;
     }
 
-    public String getComment() {
-        return comment;
+    public String getText() {
+        return text;
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
+    public void setText(String text) {
+        this.text = text;
     }
 
     public String getUsername() {
