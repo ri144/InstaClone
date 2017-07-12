@@ -14,10 +14,10 @@
 
 <div class="container">
     <br /><br />
-    <h1>Your Profile</h1>
+    <h1 th:text="${user} + '`s Profile'"></h1>
     <br/>
     <div class="row">
-    <h2>Your Photos</h2>
+    <h2 th:text="${user} + '`s Photos'"></h2>
         <div class="col-md-3" th:each="photo : ${myimages}">
             <a th:href="'/img/' + ${photo.id}" >
                 <img class="img-responsive" th:utext="${photo.image}" style="position:absolute;"/>
@@ -25,12 +25,12 @@
         </div>
     </div>
     <br/>
-    <h2>People You Follow</h2>
+    <h2 th:text="'People ' + ${user} + ' Follows'"></h2>
     <div th:each = "person : ${followList}" >
-        <a th:text = "${person.firstName} + ' ' + ${person.lastName}" th:href="@{'/profile/' + ${person.id}}"></a>
+        <a th:text = "${person.username}" th:href="@{'/profile/' + ${person.id}}"></a>
     </div>
     <div th:if="${followcheck}">
-        <a th:text = "Follow This Person" th:href="@{'/follow/' + ${person.id}}"></a>
+        <a th:href="@{'/follow/' + ${id}}">Follow This Person</a>
     </div>
 
 </div>

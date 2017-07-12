@@ -44,6 +44,10 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public List<User> findUsersLike(String username){
+        return userRepository.findAllByUsernameIsContaining(username);
+    }
+
     public void saveUser(User user) {
         user.setRoles(Arrays.asList(roleRepository.findByRole("USER")));
         user.setPassword(passwordEncoder.encode(user.getPassword()));

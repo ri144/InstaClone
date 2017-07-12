@@ -66,13 +66,52 @@ public class HomeController {
         User u = userService.findByUsername(principal.getName());
         model = setupProfile(u.getId(), model);
         model.addAttribute("followcheck", false);
+        model.addAttribute("user", u.getUsername());
         return "profile";
     }
 
     @RequestMapping("/profile/{id}")
-    public String goToProfile(@PathVariable("id") Long id, Model model){
+    public String goToProfile(@PathVariable("id") Long id, Model model, Principal principal){
+        User u = userService.findByUsername(principal.getName());
+        Long id2 = u.getId();
         model = setupProfile(id, model);
-        model.addAttribute("followcheck", true);
+        if(id2 != id) {
+            model.addAttribute("followcheck", true);
+            model.addAttribute("id", id);
+        }
+        else{
+            model.addAttribute("followcheck", false);
+        }
+        model.addAttribute("user", u.getUsername());
+        return "profile";
+    }
+
+    @RequestMapping("follow/{id}")
+    public String follow(@PathVariable("id") Long id, Model model, Principal principal){
+        Long id2 = userService.findByUsername(principal.getName()).getId();
+        List<Follower> flist = followerRepo.findAllByUserid(id2);
+        boolean check = true;
+        for(Follower f : flist){
+            if(f.getPersonid() == id){
+                check = false;
+                break;
+            }
+        }
+        if(check){
+            Follower f = new Follower();
+            f.setUserid(id2);
+            f.setPersonid(id);
+            followerRepo.save(f);
+        }
+        model = setupProfile(id, model);
+        if(id2 != id) {
+            model.addAttribute("followcheck", true);
+            model.addAttribute("id", id);
+        }
+        else{
+            model.addAttribute("followcheck", false);
+        }
+        model.addAttribute("user", u.getUsername());
         return "profile";
     }
 
@@ -101,6 +140,13 @@ public class HomeController {
         }
 
         return "login";
+    }
+
+    @PostMapping("/Search")
+    public String getUser(@RequestParam("search") String search, Model model){
+        List<User> ulist = userService.findUsersLike(search);
+        model.addAttribute("list", ulist);
+        return "results";
     }
 
     public UserValidator getUserValidator() {
