@@ -69,7 +69,25 @@
         <br/>
     </div>
 
-
+    <nav aria-label="Page navigation">
+        <ul class="pagination pagination-lg">
+            <li>
+                <a th:href="'/feed/'+${valuePrev}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <th:block th:each="v : ${values}">
+                <li >
+                    <a th:text="${v}" th:href="'/feed/' + ${v}"/>
+                </li>
+            </th:block>
+            <li >
+                <a th:href="'/feed/'+${valueNext}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 </div><!-- /.container -->
 
 <th:block th:replace="base :: footlinks"></th:block>

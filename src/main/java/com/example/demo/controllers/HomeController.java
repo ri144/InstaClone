@@ -160,21 +160,36 @@ public class HomeController {
         this.userValidator = userValidator;
     }
 
-    @RequestMapping("/feed")
-    public String gotoFeed(Model model, Principal principal){
+    @RequestMapping("/feed/{value}")
+    public String gotoFeed(Model model, Principal principal, @PathVariable("value") int value){
+        if(value == 0){
+            value = 1;
+        }
         Long id = userService.findByUsername(principal.getName()).getId();
         List<Follower> flist = followerRepo.findAllByUserid(id);
         List<Photo> pList = new ArrayList<Photo>();
         for(Follower f : flist){
             pList.addAll(photoRepo.findAllByUserid(f.getPersonid()));
-            /*  List<Photo> plisttemp = photoRepo.findAllByUserid(f.getPersonid());
-            for(Photo p : plisttemp){
-                pList.add(p);
-            }*/
         }
-        //sortPhotos(pList, photoRepo);
         pList.sort(Comparator.comparing(Photo::getCreatedAt).reversed()); //sort by date
-        model.addAttribute("myimages", pList);
+        double values = Math.ceil(pList.size()/10);
+        List<Photo> pList2 = new ArrayList<Photo>();
+        for(int i = (value-1)*10;i < (value-1)*10+10; i++){
+            try {
+                pList2.add(pList.get(i));
+            }
+            catch(IndexOutOfBoundsException e){
+                break;
+            }
+        }
+        List<Integer> list = new ArrayList<Integer>();
+        for(int i = 1;i<=values+1;i++){
+            list.add(i);
+        }
+        model.addAttribute("values", list);
+        model.addAttribute("valuePrev", value-1);
+        model.addAttribute("valueNext", value+1);
+        model.addAttribute("myimages", pList2);
         return "feed";
     }
 

@@ -48,6 +48,9 @@
     <div class="row">
     <div th:object="${images}">
             <img th:utext="*{image}" style="position:absolute; width: 300px;" />
+            <!--<button class="btn btn-primary" type="button">
+                Messages <span class="badge">4</span>
+            </button>-->
             <a th:text="'Likes: ' + *{likecounter}" th:href="'/incrementCounter/'+*{id}"></a>
             <br/>
             <div th:each="c : ${comments}">
