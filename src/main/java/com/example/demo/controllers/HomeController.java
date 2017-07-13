@@ -40,6 +40,8 @@ import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.*;
 
+import static com.example.demo.configs.MergeSort.sortPhotos;
+
 @Controller
 public class HomeController {
 
@@ -82,13 +84,14 @@ public class HomeController {
         else{
             model.addAttribute("followcheck", false);
         }
-        model.addAttribute("user", u.getUsername());
+        model.addAttribute("user", userService.findbyUserid(id).getUsername());
         return "profile";
     }
 
     @RequestMapping("follow/{id}")
     public String follow(@PathVariable("id") Long id, Model model, Principal principal){
-        Long id2 = userService.findByUsername(principal.getName()).getId();
+        User u = userService.findByUsername(principal.getName());
+        Long id2 = u.getId();
         List<Follower> flist = followerRepo.findAllByUserid(id2);
         boolean check = true;
         for(Follower f : flist){
@@ -157,6 +160,23 @@ public class HomeController {
         this.userValidator = userValidator;
     }
 
+    @RequestMapping("/feed")
+    public String gotoFeed(Model model, Principal principal){
+        Long id = userService.findByUsername(principal.getName()).getId();
+        List<Follower> flist = followerRepo.findAllByUserid(id);
+        List<Photo> pList = new ArrayList<Photo>();
+        for(Follower f : flist){
+            pList.addAll(photoRepo.findAllByUserid(f.getPersonid()));
+            /*  List<Photo> plisttemp = photoRepo.findAllByUserid(f.getPersonid());
+            for(Photo p : plisttemp){
+                pList.add(p);
+            }*/
+        }
+        //sortPhotos(pList, photoRepo);
+        pList.sort(Comparator.comparing(Photo::getCreatedAt).reversed()); //sort by date
+        model.addAttribute("myimages", pList);
+        return "feed";
+    }
 
     @GetMapping("/upload")
     public String uploadForm(Model model) {
@@ -197,14 +217,18 @@ public class HomeController {
 
     @PostMapping("submitPic/{edits}/{pic}")
     public String submitPic(Principal principal, Model model, @PathVariable("edits") String edits, @PathVariable("pic") String filename){
-        Long id = userService.findByUsername(principal.getName()).getId();
+        String username = principal.getName();
+        User u = userService.findByUsername(username);
+        Long id = u.getId();
         Photo photo = new Photo();
         photo.setImage("<img src='http://res.cloudinary.com/dmzhobs8c/image/upload/" + edits + "/" + filename + ".jpg'/>");
         photo.setUserid(id);
         photo.setCreatedAt(new Date());
+        photo.setUsername(username);
         photoRepo.save(photo);
         model = setupProfile(id, model);
         model.addAttribute("followcheck", false);
+        model.addAttribute("user", u.getUsername());
         return "profile";
     }
 

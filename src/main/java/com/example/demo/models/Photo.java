@@ -3,6 +3,7 @@ package com.example.demo.models;
 
 
 import com.cloudinary.StoredFile;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -15,10 +16,13 @@ public class Photo {
 
     private long userid;
 
+    private String username;
+
     @Basic
     private String image;
 
     @Basic
+    @DateTimeFormat(pattern = "hh:mm dd/MM/yyyy")
     private Date createdAt = new Date();
 
     private int likecounter;
@@ -75,5 +79,13 @@ public class Photo {
 
     public void setLikecounter(int likecounter) {
         this.likecounter = likecounter;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
