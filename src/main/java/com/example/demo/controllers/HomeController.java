@@ -221,7 +221,7 @@ public class HomeController {
             model.addAttribute("images", p);
             model.addAttribute("filename", filename);
             model.addAttribute("pic", filename);
-            model.addAttribute("edits", "bo_2px_solid_black,c_fit,h_200,w_200");
+            model.addAttribute("edits", "bo_2px_solid_black,c_fill,h_200,w_200");
             // photoRepo.save(p);
         } catch (IOException e){
             e.printStackTrace();
@@ -253,7 +253,7 @@ public class HomeController {
         model.addAttribute("filename", filename);
         model.addAttribute("images", photo);
         model.addAttribute("pic", filename);
-        model.addAttribute("edits", "e_colorize:50,co_rgb:ff0000,bo_2px_solid_black,c_fit,h_200,w_200");
+        model.addAttribute("edits", "e_colorize:50,co_rgb:ff0000,bo_2px_solid_black,c_fill,h_200,w_200");
         return "confirmphoto";
     }
 
@@ -263,7 +263,7 @@ public class HomeController {
         model.addAttribute("filename", filename);
         model.addAttribute("images", photo);
         model.addAttribute("pic", filename);
-        model.addAttribute("edits", "bo_2px_solid_black,c_fit,h_200,w_200");
+        model.addAttribute("edits", "bo_2px_solid_black,c_fill,h_200,w_200");
         return "confirmphoto";
     }
 
@@ -273,7 +273,7 @@ public class HomeController {
         model.addAttribute("filename", filename);
         model.addAttribute("images", photo);
         model.addAttribute("pic", filename);
-        model.addAttribute("edits", "e_hue,bo_2px_solid_black,c_fit,h_200,w_200");
+        model.addAttribute("edits", "e_hue,bo_2px_solid_black,c_fill,h_200,w_200");
         return "confirmphoto";
     }
 
@@ -283,7 +283,7 @@ public class HomeController {
         model.addAttribute("filename", filename);
         model.addAttribute("images", photo);
         model.addAttribute("pic", filename);
-        model.addAttribute("edits", "e_sepia,bo_2px_solid_black,c_fit,h_200,w_200");
+        model.addAttribute("edits", "e_sepia,bo_2px_solid_black,c_fill,h_200,w_200");
         return "confirmphoto";
     }
 
@@ -313,6 +313,7 @@ public class HomeController {
 
     private Model setupPicturePage(Model model, Long id){
         Photo p = photoRepo.findById(id);
+        p.setImage(p.getImage().replaceAll("fill","fit").replaceAll("200","400"));
         model.addAttribute("images", p);
         List<Comment> clist = commentRepo.findAllByPhotoid(id);
         model.addAttribute("comments", clist);

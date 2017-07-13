@@ -17,11 +17,12 @@
     <h1 th:text="${user} + '`s Profile'"></h1>
     <br/>
     <div class="row">
-    <h2 th:text="${user} + '`s Photos'"></h2>
+        <h2 th:text="' ' + ${user} + '`s Photos'"></h2>
         <div class="col-md-3" th:each="photo : ${myimages}">
             <a th:href="'/img/' + ${photo.id}" >
                 <img class="img-responsive" th:utext="${photo.image}" style="position:absolute;"/>
             </a>
+            <br/><br/>
         </div>
     </div>
     <br/>
