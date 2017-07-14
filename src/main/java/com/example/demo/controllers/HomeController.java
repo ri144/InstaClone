@@ -296,7 +296,9 @@ public class HomeController {
     @PostMapping("/newComment/{id}")
     public String addComment(@PathVariable("id") Long id, Model model, @ModelAttribute Comment comment, Principal principal){
         comment.setPhotoid(id);
-        comment.setUsername(userService.findByUsername(principal.getName()).getUsername());
+        User user = userService.findByUsername(principal.getName());
+        comment.setUsername(user.getUsername());
+        comment.setUserid(user.getId());
         commentRepo.save(comment);
         model = setupPicturePage(model, id);
         return "gallery";

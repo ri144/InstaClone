@@ -18,6 +18,8 @@ public class Comment {
 
     private String username; //user who posted the comment
 
+    private long userid;
+
     private String text;
 
     public Long getId() {
@@ -50,5 +52,13 @@ public class Comment {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public long getUserid() {
+        return userid;
+    }
+
+    public void setUserid(long userid) {
+        this.userid = userid;
     }
 }

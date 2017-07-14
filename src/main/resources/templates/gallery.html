@@ -52,10 +52,10 @@
                 <button class="btn btn-primary" type="button" th:text="'Likes: ' + *{likecounter}">
                 </button>
             </a>
-            <!--<a th:text="'Likes: ' + *{likecounter}" th:href="'/incrementCounter/'+*{id}"></a>-->
             <br/><br/>
             <div th:each="c : ${comments}">
-                <p th:text="${c.username} + ' says :'"/>
+                <a th:href="'/profile/' + ${c.userid}" th:text="${c.username}"></a> says:
+                <br/>
                 <p th:text="${c.text}"/>
             </div>
     </div>
