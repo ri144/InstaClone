@@ -148,6 +148,12 @@ public class HomeController {
     @PostMapping("/Search")
     public String getUser(@RequestParam("search") String search, Model model){
         List<User> ulist = userService.findUsersLike(search);
+        if(ulist.isEmpty()){
+            model.addAttribute("emptymsg", true);
+        }
+        else{
+            model.addAttribute("emptymsg", false);
+        }
         model.addAttribute("list", ulist);
         return "results";
     }
@@ -185,6 +191,12 @@ public class HomeController {
         List<Integer> list = new ArrayList<Integer>();
         for(int i = 1;i<=values+1;i++){
             list.add(i);
+        }
+        if(pList2.isEmpty()){
+            model.addAttribute("emptymsg", true);
+        }
+        else{
+            model.addAttribute("emptymsg", false);
         }
         model.addAttribute("values", list);
         model.addAttribute("valuePrev", value-1);

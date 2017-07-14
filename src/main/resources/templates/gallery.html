@@ -50,6 +50,7 @@
             <img th:utext="*{image}" style="position:absolute; width: 300px;" />
             <a th:href="'/incrementCounter/'+*{id}">
                 <button class="btn btn-primary" type="button" th:text="'Likes: ' + *{likecounter}">
+                    <span class="glyphicon glyphicon-thumbs-up"/>
                 </button>
             </a>
             <br/><br/>

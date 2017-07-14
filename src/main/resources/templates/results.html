@@ -45,14 +45,17 @@
 <div class="container">
     <br /><br />
     <h1>Users</h1>
-    <table>
+    <table class="table table-hover">
         <tr>
-            <td style="width: 50%;">Name </td>
+            <th style="width: 50%;"><h3>Name </h3></th>
         </tr>
         <tr th:each="p : ${list}">
             <td style="width: 50%;"><a th:href="@{'/profile/'+ ${p.id}}" th:text="${p.username}"/>
         </tr>
     </table>
+    <div th:if="${emptymsg}">
+        <h4>No results found</h4>
+    </div>
 </div><!-- /.container -->
 
 <th:block th:replace="base :: footlinks"></th:block>
