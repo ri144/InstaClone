@@ -6,13 +6,8 @@ import com.cloudinary.StoredFile;
 import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.demo.configs.CloudinaryConfig;
-import com.example.demo.models.Comment;
-import com.example.demo.models.Follower;
-import com.example.demo.models.Photo;
-import com.example.demo.models.User;
-import com.example.demo.repositories.CommentRepo;
-import com.example.demo.repositories.FollowerRepo;
-import com.example.demo.repositories.PhotoRepository;
+import com.example.demo.models.*;
+import com.example.demo.repositories.*;
 import com.example.demo.services.UserService;
 import com.example.demo.validators.UserValidator;
 import com.google.common.collect.Lists;
@@ -62,6 +57,9 @@ public class HomeController {
 
     @Autowired
     private CommentRepo commentRepo;
+
+    @Autowired
+    private LikesRepo likeRepo;
 
     @RequestMapping("/")
     public String index(Principal principal, Model model){
@@ -300,8 +298,15 @@ public class HomeController {
     }
 
     @RequestMapping("/img/{id}")
-    public String imgDisplay(Model model, @PathVariable("id") Long id){
+    public String imgDisplay(Model model, @PathVariable("id") Long id, Principal principal){
         model = setupPicturePage(model, id);
+        Likes like = likeRepo.findByPhotoidAndUserid(id, userService.findByUsername(principal.getName()).getId());
+        if(like == null) {
+            model.addAttribute("like", true);
+        }
+        else{
+            model.addAttribute("like", false);
+        }
         return "gallery";
     }
 
@@ -313,15 +318,35 @@ public class HomeController {
         comment.setUserid(user.getId());
         commentRepo.save(comment);
         model = setupPicturePage(model, id);
+        if(likeRepo.findByPhotoidAndUserid(id, userService.findByUsername(principal.getName()).getId()) == null)
+            model.addAttribute("like", true);
+        else{
+            model.addAttribute("like", false);
+        }
         return "gallery";
     }
 
     @RequestMapping("incrementCounter/{id}")
-    public String incrementCounter(@PathVariable("id") Long id, Model model){
+    public String incrementCounter(@PathVariable("id") Long id, Model model, Principal principal){
+        likeRepo.save(new Likes(id, userService.findByUsername(principal.getName()).getId()));
         Photo p = photoRepo.findById(id);
-        p.setLikecounter(p.getLikecounter() + 1);
+        List<Likes> list = likeRepo.findAllByPhotoid(id);
+        p.setLikecounter(list.size());
         photoRepo.save(p);
         model = setupPicturePage(model, id);
+        model.addAttribute("like", false);
+        return "gallery";
+    }
+
+    @RequestMapping("decrementCounter/{id}")
+    public String decrementCounter(@PathVariable("id") Long id, Model model, Principal principal){
+        likeRepo.deleteByUserid(userService.findByUsername(principal.getName()).getId());
+        Photo p = photoRepo.findById(id);
+        List<Likes> list = likeRepo.findAllByPhotoid(id);
+        p.setLikecounter(list.size());
+        photoRepo.save(p);
+        model = setupPicturePage(model, id);
+        model.addAttribute("like", true);
         return "gallery";
     }
 

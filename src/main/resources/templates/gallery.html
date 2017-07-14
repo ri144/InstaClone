@@ -17,11 +17,17 @@
     <div class="row">
     <div th:object="${images}">
             <img th:utext="*{image}" style="position:absolute; width: 300px;" />
-            <a th:href="'/incrementCounter/'+*{id}">
+            <a th:if="${like}" th:href="'/incrementCounter/'+*{id}">
                 <button class="btn btn-primary" type="button">
-                    <span class="glyphicon glyphicon-thumbs-up"/><p th:text="'Likes: ' + *{likecounter}"/>
+                    <span class="glyphicon glyphicon-thumbs-up"/><p th:text="'Like'"/>
                 </button>
             </a>
+            <a th:unless="${like}" th:href="'/decrementCounter/'+*{id}">
+                <button class="btn btn-primary" type="button">
+                    <span class="glyphicon glyphicon-thumbs-down"/><p th:text="'Unlike'"/>
+                </button>
+            </a>
+            <p class="liketext" th:text="'Likes: ' + *{likecounter}"/>
             <br/><br/>
             <div th:each="c : ${comments}">
                 <a th:href="'/profile/' + ${c.userid}" th:text="${c.username}"></a> says:
