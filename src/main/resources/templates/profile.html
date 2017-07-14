@@ -32,7 +32,9 @@
     <div th:if="${followcheck}">
         <a th:href="@{'/follow/' + ${id}}">Follow This Person</a>
     </div>
-
+    <div th:if="${unfollowcheck}">
+        <a th:href="@{'/unfollow/' + ${id}}">Unfollow This Person</a>
+    </div>
 </div>
 <th:block th:replace="base :: footlinks"></th:block>
 </body>

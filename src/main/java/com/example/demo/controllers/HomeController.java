@@ -66,6 +66,7 @@ public class HomeController {
         User u = userService.findByUsername(principal.getName());
         model = setupProfile(u.getId(), model);
         model.addAttribute("followcheck", false);
+        model.addAttribute("unfollowcheck", false);
         model.addAttribute("user", u.getUsername());
         return "profile";
     }
@@ -76,11 +77,19 @@ public class HomeController {
         Long id2 = u.getId();
         model = setupProfile(id, model);
         if(id2 != id) {
-            model.addAttribute("followcheck", true);
+            if(followerRepo.findByUseridAndPersonid(id2, id) == null) {
+                model.addAttribute("followcheck", true);
+                model.addAttribute("unfollowcheck", false);
+            }
+            else{
+                model.addAttribute("followcheck", false);
+                model.addAttribute("unfollowcheck", true);
+            }
             model.addAttribute("id", id);
         }
         else{
             model.addAttribute("followcheck", false);
+            model.addAttribute("unfollowcheck", false);
         }
         model.addAttribute("user", userService.findbyUserid(id).getUsername());
         return "profile";
@@ -105,14 +114,21 @@ public class HomeController {
             followerRepo.save(f);
         }
         model = setupProfile(id, model);
-        if(id2 != id) {
-            model.addAttribute("followcheck", true);
-            model.addAttribute("id", id);
-        }
-        else{
-            model.addAttribute("followcheck", false);
-        }
-        model.addAttribute("user", u.getUsername());
+        model.addAttribute("followcheck", false);
+        model.addAttribute("unfollowcheck", true);
+        model.addAttribute("user", userService.findbyUserid(id).getUsername());
+        return "profile";
+    }
+
+    @RequestMapping("unfollow/{id}")
+    public String unfollow(@PathVariable("id") Long id, Model model, Principal principal){
+        User u = userService.findByUsername(principal.getName());
+        Long id2 = u.getId();
+        followerRepo.deleteByUseridAndPersonid(id2, id);
+        model = setupProfile(id, model);
+        model.addAttribute("followcheck", true);
+        model.addAttribute("unfollowcheck", false);
+        model.addAttribute("user", userService.findbyUserid(id).getUsername());
         return "profile";
     }
 
@@ -253,6 +269,7 @@ public class HomeController {
         photoRepo.save(photo);
         model = setupProfile(id, model);
         model.addAttribute("followcheck", false);
+        model.addAttribute("unfollowcheck", false);
         model.addAttribute("user", u.getUsername());
         return "profile";
     }
