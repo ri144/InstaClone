@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>InstaClone</title>
-
     <th:block th:replace="base :: head"></th:block>
 </head>
 <body>
@@ -14,10 +13,10 @@
 
 <div class="container">
     <br /><br />
-    <h1 th:text="${user} + '`s Profile'"></h1>
+    <h1 th:text="${user} + '&rsquo;s Profile'"></h1>
     <br/>
+    <h2 th:text="' ' + ${user} + '&rsquo;s Photos'"></h2>
     <div class="row">
-        <h2 th:text="' ' + ${user} + '`s Photos'"></h2>
         <div class="col-md-3" th:each="photo : ${myimages}">
             <a th:href="'/img/' + ${photo.id}" >
                 <img class="img-responsive" th:utext="${photo.image}" style="position:absolute;"/>
