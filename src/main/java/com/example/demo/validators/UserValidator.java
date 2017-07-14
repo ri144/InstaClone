@@ -39,6 +39,26 @@ public class UserValidator implements Validator {
         if(password.length() < 5){
             errors.rejectValue("password","user.password.tooShort");
         }
+        boolean found = false;
+        for(char c : password.toCharArray()){
+            if(Character.isDigit(c)){
+                found = true;
+                break;
+            }
+        }
+        if(!found){
+            errors.rejectValue("password","user.password.noNums");
+        }
+        if(password.equals(password.toLowerCase())){
+            errors.rejectValue("password","user.password.noCaps");
+        }
+        if(password.equals(password.toUpperCase())){
+            errors.rejectValue("password","user.password.noLows");
+        }
+        if(password.equals(username)){
+            errors.rejectValue("password","user.password.sameUser");
+            errors.rejectValue("username","user.password.sameUser");
+        }
         if(userRepository.countByEmail(email)>0){
             errors.rejectValue("email", "user.email.duplicate");
         }
