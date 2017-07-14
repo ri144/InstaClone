@@ -64,7 +64,7 @@ public class HomeController {
     @RequestMapping("/")
     public String index(Principal principal, Model model){
         User u = userService.findByUsername(principal.getName());
-        model = setupProfile(u.getId(), model);
+        model = setupProfile(u.getId(), model, u);
         model.addAttribute("followcheck", false);
         model.addAttribute("unfollowcheck", false);
         model.addAttribute("user", u.getUsername());
@@ -75,7 +75,7 @@ public class HomeController {
     public String goToProfile(@PathVariable("id") Long id, Model model, Principal principal){
         User u = userService.findByUsername(principal.getName());
         Long id2 = u.getId();
-        model = setupProfile(id, model);
+        model = setupProfile(id, model, u);
         if(id2 != id) {
             if(followerRepo.findByUseridAndPersonid(id2, id) == null) {
                 model.addAttribute("followcheck", true);
@@ -113,7 +113,7 @@ public class HomeController {
             f.setPersonid(id);
             followerRepo.save(f);
         }
-        model = setupProfile(id, model);
+        model = setupProfile(id, model,u);
         model.addAttribute("followcheck", false);
         model.addAttribute("unfollowcheck", true);
         model.addAttribute("user", userService.findbyUserid(id).getUsername());
@@ -125,7 +125,7 @@ public class HomeController {
         User u = userService.findByUsername(principal.getName());
         Long id2 = u.getId();
         followerRepo.deleteByUseridAndPersonid(id2, id);
-        model = setupProfile(id, model);
+        model = setupProfile(id, model, u);
         model.addAttribute("followcheck", true);
         model.addAttribute("unfollowcheck", false);
         model.addAttribute("user", userService.findbyUserid(id).getUsername());
@@ -267,7 +267,7 @@ public class HomeController {
         photo.setCreatedAt(new Date());
         photo.setUsername(username);
         photoRepo.save(photo);
-        model = setupProfile(id, model);
+        model = setupProfile(id, model, u);
         model.addAttribute("followcheck", false);
         model.addAttribute("unfollowcheck", false);
         model.addAttribute("user", u.getUsername());
@@ -316,8 +316,9 @@ public class HomeController {
 
     @RequestMapping("/img/{id}")
     public String imgDisplay(Model model, @PathVariable("id") Long id, Principal principal){
-        model = setupPicturePage(model, id);
-        Likes like = likeRepo.findByPhotoidAndUserid(id, userService.findByUsername(principal.getName()).getId());
+        User user = userService.findByUsername(principal.getName());
+        model = setupPicturePage(model, id, user);
+        Likes like = likeRepo.findByPhotoidAndUserid(id, user.getId());
         if(like == null) {
             model.addAttribute("like", true);
         }
@@ -334,7 +335,7 @@ public class HomeController {
         comment.setUsername(user.getUsername());
         comment.setUserid(user.getId());
         commentRepo.save(comment);
-        model = setupPicturePage(model, id);
+        model = setupPicturePage(model, id, user);
         if(likeRepo.findByPhotoidAndUserid(id, userService.findByUsername(principal.getName()).getId()) == null)
             model.addAttribute("like", true);
         else{
@@ -345,39 +346,55 @@ public class HomeController {
 
     @RequestMapping("incrementCounter/{id}")
     public String incrementCounter(@PathVariable("id") Long id, Model model, Principal principal){
-        likeRepo.save(new Likes(id, userService.findByUsername(principal.getName()).getId()));
+        User user = userService.findByUsername(principal.getName());
+        likeRepo.save(new Likes(id, user.getId()));
         Photo p = photoRepo.findById(id);
         List<Likes> list = likeRepo.findAllByPhotoid(id);
         p.setLikecounter(list.size());
         photoRepo.save(p);
-        model = setupPicturePage(model, id);
+        model = setupPicturePage(model, id, user);
         model.addAttribute("like", false);
         return "gallery";
     }
 
     @RequestMapping("decrementCounter/{id}")
     public String decrementCounter(@PathVariable("id") Long id, Model model, Principal principal){
-        likeRepo.deleteByUserid(userService.findByUsername(principal.getName()).getId());
+        User user = userService.findByUsername(principal.getName());
+        likeRepo.deleteByUserid(user.getId());
         Photo p = photoRepo.findById(id);
         List<Likes> list = likeRepo.findAllByPhotoid(id);
         p.setLikecounter(list.size());
         photoRepo.save(p);
-        model = setupPicturePage(model, id);
+        model = setupPicturePage(model, id, user);
         model.addAttribute("like", true);
         return "gallery";
     }
 
-    private Model setupPicturePage(Model model, Long id){
+    @RequestMapping("editComment/{id}")
+    public String editComm(@PathVariable("id") Long id, Model model, Principal principal){
+        User user = userService.findByUsername(principal.getName());
+        Comment c = commentRepo.findById(id);
+        if(likeRepo.findByPhotoidAndUserid(c.getPhotoid(), user.getId()) == null)
+            model.addAttribute("like", true);
+        else{
+            model.addAttribute("like", false);
+        }
+        model = setupPicturePage(model, id, user);
+        return "gallery";
+    }
+
+    private Model setupPicturePage(Model model, Long id, User user){
         Photo p = photoRepo.findById(id);
         p.setImage(p.getImage().replaceAll("fill","fit").replaceAll("200","400"));
         model.addAttribute("images", p);
         List<Comment> clist = commentRepo.findAllByPhotoid(id);
+        model.addAttribute("myid", user.getId());
         model.addAttribute("comments", clist);
         model.addAttribute("newcomment", new Comment());
         return model;
     }
 
-    private Model setupProfile(Long id, Model model){
+    private Model setupProfile(Long id, Model model, User user){
         List<Photo> pList = photoRepo.findAllByUserid(id);
         model.addAttribute("myimages", pList);
         List<Follower> flist = followerRepo.findAllByUserid(id);

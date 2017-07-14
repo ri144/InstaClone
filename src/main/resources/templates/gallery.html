@@ -30,7 +30,8 @@
             <p class="liketext" th:text="'Likes: ' + *{likecounter}"/>
             <br/><br/>
             <div th:each="c : ${comments}">
-                <a th:href="'/profile/' + ${c.userid}" th:text="${c.username}"></a> says:
+                <a th:href="'/profile/' + ${c.userid}" th:text="${c.username}"></a> says:&nbsp;&nbsp;&nbsp;
+                <a th:if="${c.userid} == ${myid}" th:href="'/editComment/' + ${c.id}">edit</a>
                 <br/>
                 <p th:text="${c.text}"/>
             </div>

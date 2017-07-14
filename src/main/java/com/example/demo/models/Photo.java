@@ -14,7 +14,7 @@ public class Photo {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private long userid;
+    private long userid;  //person who posted picture
 
     private String username;
 

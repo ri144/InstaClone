@@ -10,4 +10,5 @@ import java.util.List;
  */
 public interface CommentRepo extends CrudRepository<Comment, Long> {
     List<Comment> findAllByPhotoid(Long photoid);
+    Comment findById(Long id);
 }
